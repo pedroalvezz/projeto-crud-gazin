@@ -1,32 +1,47 @@
-# Imagem base com PHP e extensões
-FROM php:8.1-fpm
+# Definido imagem base do container;
+FROM php:8.2-fpm
 
-# Instalar dependências
+# Definido variável do usuário;
+ARG user=pdi_project
+
+# Definido id do usuário;
+ARG uid=1000
+
+# Atualiza e instala os pacotes mencionados
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    libzip-dev \
-    zip \
-    unzip \
     git \
     curl \
-    && docker-php-ext-install pdo pdo_mysql zip
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip
 
-# Instalar Composer
+# Limpa o cache dos pacotes instalados reduzindo o tamanho final da imagem.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Instala as extensões do PHP;
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets
+
+# Copia o executável do composer da imagem oficial do composer para dentro do container. 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Definir diretório de trabalho
-WORKDIR /var/www/html
+# Adiciona um novo usuário ao container, aos grupos www-data, root e ao diretório /home/$user. (Importante adicionar o usuário ao diretório para evitar problemas de permissões ao dar manutenção dentro dos diretórios do container.)
+RUN useradd -G www-data,root -u $uid -d /home/$user $user
 
-# Copiar arquivos
+# Cria o diretório /.composer no diretório do usuário (mkdir -p /home/$user/.composer). Também define o usuário e o grupo donos do diretório (chown -R $user:$user /home/$user);
+RUN mkdir -p /home/$user/.composer && \
+    chown -R $user:$user /home/$user
+
+RUN chown -R www-data:www-data /var/www
+
+# Define o diretório de trabalho.
+WORKDIR /var/www
+
+# Copia o arquivo custom.ini para dentro do container, permitindo alterar configurações do PHP.
 COPY . .
 
-# Permissões corretas
-RUN chmod -R 775 storage bootstrap/cache
-
-# Instalar dependências PHP
-RUN composer install --no-dev --optimize-autoloader
-
-# Configurar porta de escuta
-EXPOSE 9000
+# Define o usuário padrão para todas as execuções no container.
+USER $user
 
 CMD ["php-fpm"]

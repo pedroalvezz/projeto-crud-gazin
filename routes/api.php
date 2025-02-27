@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProdutoController;
 
 
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('produtos', ProdutoController::class);
+
+Route::get('/produtos/buscar', [ProdutoController::class, 'buscar']);

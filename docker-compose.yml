@@ -1,35 +1,37 @@
-version: '3.8'
+version: "3.7"
+
 services:
   app:
     build:
       context: .
-    container_name: laravel-api
-    ports:
-      - "9000:9000"
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: unless-stopped
+    working_dir: /var/www/
     volumes:
-      - .:/var/www/html
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-      - APP_KEY=base64:your_key_here
+      - ./:/var/www
+      - ./storage:/var/www/storage
+    ports:
+      - "8000:8000"
+    networks:
+      - laravel
+    command: >
+      sh -c "composer install && php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0"
 
   db:
-    image: mysql:8.0
-    container_name: laravel-db
-    ports:
-      - "3306:3306"
+    image: mysql:5.7.22
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: api-laravel
-      MYSQL_USER: root
-      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: api_laravel
+      MYSQL_ROOT_PASSWORD:
     volumes:
-      - db_data:/var/lib/mysql
-
-volumes:
-  db_data:
-
+      - ./.docker/mysql/dbdata:/var/lib/mysql
+    ports:
+      - "3399:3306"
+    networks:
+      - laravel
 
 networks:
-  laravel_network:
+  laravel:
     driver: bridge
