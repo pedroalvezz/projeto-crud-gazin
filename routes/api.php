@@ -22,4 +22,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('produtos', ProdutoController::class);
 
-Route::get('/produtos/buscar', [ProdutoController::class, 'buscar']);
+Route::put('/produtos/{id}/quantidade', [ProdutoController::class, 'updateQuantidade']);
+
+Route::put('/produtos/{id}/remover', [ProdutoController::class, 'removeQuantity']);

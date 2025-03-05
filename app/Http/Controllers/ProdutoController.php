@@ -25,11 +25,27 @@ class ProdutoController extends Controller
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'preco' => 'required|numeric',
+            'quantidade' => 'nullable|integer|min:1'
 
         ]);
 
         $produto = Produto::create($validatedData);
         return response()->json($produto, 201);
+
+        $produto = Produto::where('nome', $request->nome)->first();
+
+        if ($produto) {
+            $produto->increment('quantidade', $request->quantidade ?? 1);
+        } else {
+            Produto::create([
+                'nome' => $request->nome,
+                'preco' => $request->preco,
+                'descricao' => $request->descricao,
+                'quantidade' => $request->quantidade ?? 1
+            ]);
+        }
+
+        return response()->json(['message' => 'Produto adicionado com sucesso!'], 201);
     }
 
 
@@ -74,5 +90,34 @@ class ProdutoController extends Controller
     }
 
 
-    public function buscar(Request $request) {}
+    public function updateQuantidade(Request $request, $id)
+    {
+        $request->validate([
+            'quantidade' => 'required|integer|min:1'
+        ]);
+
+        $produto = Produto::findOrFail($id);
+        $produto->increment('quantidade', $request->quantidade);
+        $produto->save();
+
+        return response()->json(['message' => 'Quantidade atualizada com sucesso!', 'produto' => $produto], 200);
+    }
+
+    public function removeQuantity(Request $request, $id)
+    {
+        $produto = Produto::findOrFail($id);
+
+        if ($produto->quantidade > 0) {
+            $produto->quantidade -= 1;
+            $produto->preco_total = $produto->quantidade * $produto->preco_unitario;
+            $produto->save();
+
+            return response()->json([
+                'message' => 'Quantidade removida com sucesso',
+                'produto' => $produto
+            ]);
+        }
+
+        return response()->json(['error' => 'A quantidade já é zero'], 400);
+    }
 }

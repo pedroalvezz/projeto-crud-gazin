@@ -15,5 +15,5 @@ class Produto extends Model
 
     public $timestamps = true;
 
-    protected $fillable = ['nome', 'descricao', 'preco'];
+    protected $fillable = ['nome', 'descricao', 'preco', 'quantidade'];
 }

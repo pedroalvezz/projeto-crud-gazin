@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('nome');
             $table->text('descricao')->nullable();
             $table->decimal('preco', 8, 2);
+            $table->integer('quantidade')->default(1);
+            $table->decimal('preco_total', 10, 2)->default(0); // Deve existir
             $table->timestamps();
         });
     }
