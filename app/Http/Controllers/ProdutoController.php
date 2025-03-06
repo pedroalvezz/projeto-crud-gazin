@@ -16,6 +16,14 @@ class ProdutoController extends Controller
             $query->where('nome', 'like', '%' . $request->search . '%');
         }
 
+        if ($request->has('min_price')) {
+            $query->where('preco', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price')) {
+            $query->where('preco', '<=', $request->max_price);
+        }
+
         return response()->json($query->get());
     }
 
