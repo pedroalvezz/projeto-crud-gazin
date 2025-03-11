@@ -23,8 +23,8 @@ class ProdutoController extends Controller
         if ($request->has('max_price')) {
             $query->where('preco', '<=', $request->max_price);
         }
-
         return response()->json($query->get());
+        return Produto::all();
     }
 
     public function store(Request $request)
@@ -33,7 +33,9 @@ class ProdutoController extends Controller
             'nome' => 'required|string|max:255',
             'descricao' => 'nullable|string',
             'preco' => 'required|numeric',
-            'quantidade' => 'nullable|integer|min:1'
+            'quantidade' => 'nullable|integer|min:1',
+            'categoria_id' => 'nullable|exists:categories,id',
+
 
         ]);
 
@@ -49,7 +51,8 @@ class ProdutoController extends Controller
                 'nome' => $request->nome,
                 'preco' => $request->preco,
                 'descricao' => $request->descricao,
-                'quantidade' => $request->quantidade ?? 1
+                'quantidade' => $request->quantidade ?? 1,
+                'categoria_id' => $request->categoria_id,
             ]);
         }
 
