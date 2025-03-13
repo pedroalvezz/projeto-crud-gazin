@@ -34,7 +34,7 @@ class ProdutoController extends Controller
             'descricao' => 'nullable|string',
             'preco' => 'required|numeric',
             'quantidade' => 'nullable|integer|min:1',
-            'categoria_id' => 'nullable|exists:categories,id',
+
 
 
         ]);
@@ -52,7 +52,7 @@ class ProdutoController extends Controller
                 'preco' => $request->preco,
                 'descricao' => $request->descricao,
                 'quantidade' => $request->quantidade ?? 1,
-                'categoria_id' => $request->categoria_id,
+
             ]);
         }
 
